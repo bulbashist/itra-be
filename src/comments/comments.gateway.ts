@@ -14,7 +14,10 @@ import { UseGuards } from '@nestjs/common/decorators';
 import { DeleteGuard } from './guards/delete.guard';
 
 @WebSocketGateway({
-  cors: { credentials: true, origin: ['http://localhost:3000'] },
+  cors: {
+    credentials: true,
+    origin: ['http://localhost:3000', 'https://application-ld69.onrender.com'],
+  },
 })
 export class CommentsGateway {
   @WebSocketServer()
