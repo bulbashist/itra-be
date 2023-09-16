@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CompositionsService } from './compositions.service';
 import { CreateCompositionDto } from './dto/create-composition.dto';
@@ -23,8 +25,8 @@ export class CompositionsController {
   }
 
   @Get()
-  async findAll() {
-    const compositions = await this.compositionsService.findAll();
+  async findAll(@Query('page', ParseIntPipe) page: number) {
+    const compositions = await this.compositionsService.findAll(page);
     return compositions;
   }
 

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -11,7 +15,6 @@ export class AuthService {
   ) {}
 
   getUserData(token: string) {
-    console.log(token);
     const { id, name, isAdmin } = this._jwtService.decode(token) as any;
     return { id, name, isAdmin };
   }
@@ -49,11 +52,16 @@ export class AuthService {
   }
 
   async signUp(login: string, password: string) {
-    const res = await this._usersService.create({ login, password });
-    return res;
+    try {
+      await this._usersService.create({ login, password });
+    } catch {
+      throw new BadRequestException();
+    }
   }
 
   private createToken(user: User) {
+    if (user.isBlocked) return null;
+
     const accessToken = this._jwtService.sign(
       {
         id: user.id,
@@ -62,7 +70,7 @@ export class AuthService {
       },
       {
         secret: process.env.JWT_SECRET,
-        expiresIn: 600,
+        expiresIn: 3600,
       },
     );
     return accessToken;

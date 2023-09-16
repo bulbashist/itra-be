@@ -9,7 +9,7 @@ export class User {
   @PrimaryColumn({ generated: 'increment' })
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   login: string;
 
   @Column({ nullable: true })
@@ -35,4 +35,6 @@ export class User {
 
   @OneToMany(() => CompositionRating, (rating) => rating.user)
   compositionRatings: CompositionRating[];
+
+  likes?: number;
 }

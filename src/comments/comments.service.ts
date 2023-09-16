@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './entities/comment.entity';
 import { Repository } from 'typeorm';
@@ -23,7 +22,6 @@ export class CommentsService {
 
   async remove(id: number) {
     const result = await this._repo.delete(id);
-    console.log(result, id);
     return result;
   }
 }

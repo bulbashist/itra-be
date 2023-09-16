@@ -9,6 +9,7 @@ export class Preview {
   compositionName: string;
   avgRating: number;
   tags: Tag[];
+  previewImg: string;
 
   constructor(review: Review) {
     this.id = review.id;
@@ -16,10 +17,13 @@ export class Preview {
     this.date = review.date;
     this.compositionName = review.composition.name;
     this.avgRating = this.getAvgRating(review.ratings);
-    this.tags = review.tags;
+    this.tags = review.tags.concat(review.composition.tag);
+    this.previewImg = review.previewImg;
   }
 
   private getAvgRating(ratings: ReviewRating[]) {
+    if (ratings.length === 0) return 0;
+
     return (
       ratings.reduce((sum, rating) => sum + rating.score, 0) / ratings.length
     );

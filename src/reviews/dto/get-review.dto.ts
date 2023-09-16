@@ -16,4 +16,5 @@ export class GetReviewDto {
   group: Tag;
   tags: Tag[];
   comments: GetCommentDto[];
+  isLiked: boolean;
 }

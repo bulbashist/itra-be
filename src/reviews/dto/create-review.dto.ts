@@ -1,6 +1,10 @@
 import { Tag } from 'src/tags/entities/tag.entity';
 
 export class CreateReviewDto {
+  user?: {
+    id: number;
+  };
+
   composition: {
     id: number;
   };

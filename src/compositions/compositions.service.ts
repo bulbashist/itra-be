@@ -17,15 +17,20 @@ export class CompositionsService {
     return 'This action adds a new composition';
   }
 
-  async findAll() {
-    const compositions = await this._repo.find();
+  async findAll(page: number, amount = 12) {
+    const compositions = await this._repo
+      .createQueryBuilder('comp')
+      .leftJoinAndSelect('comp.tag', 'tag')
+      .take(amount)
+      .skip((page - 1) * amount)
+      .getMany();
     return compositions;
   }
 
   async findOne(id: number, userId = 0) {
     const composition = await this._repo.findOne({
       where: { id },
-      relations: ['tag', 'ratings'],
+      relations: ['tag', 'ratings', 'reviews'],
     });
     return new GetCompositionDto(composition, userId);
   }

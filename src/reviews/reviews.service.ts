@@ -15,16 +15,24 @@ export class ReviewsService {
     private _repo: Repository<Review>,
   ) {}
 
+  public previewQuery = this._repo
+    .createQueryBuilder('review')
+    .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])
+    .leftJoin('review.composition', 'composition')
+    .addSelect('composition.name')
+    .leftJoinAndSelect('review.ratings', 'ratings')
+    .leftJoinAndSelect('review.tags', 'tags');
+
   async create(createReviewDto: CreateReviewDto, userId: number) {
     const review = {
       ...createReviewDto,
       user: { id: userId },
     };
-    const result = this._repo.save<CreateRepoReviewDto>(review);
+    const result = await this._repo.save<CreateRepoReviewDto>(review);
     return result;
   }
 
-  async findByText() {
+  async findByText(text = '') {
     const reviews = await this._repo
       .createQueryBuilder('review')
       .select(['review.id', 'review.title', 'review.date'])
@@ -33,10 +41,11 @@ export class ReviewsService {
       .leftJoin('review.comments', 'comments')
       .leftJoinAndSelect('review.ratings', 'ratings')
       .leftJoinAndSelect('review.tags', 'tags')
-      .where('MATCH(review.text) AGAINST ("Lorem" IN BOOLEAN MODE)')
-      .orWhere('MATCH(review.title) AGAINST ("Lorem" IN BOOLEAN MODE)')
-      .orWhere('MATCH(composition.name) AGAINST ("Lorem" IN BOOLEAN MODE)')
-      .orWhere('MATCH(comments.text) AGAINST ("ahahaha" IN BOOLEAN MODE)')
+      .where('MATCH(review.text) AGAINST (:text IN BOOLEAN MODE)')
+      .orWhere('MATCH(review.title) AGAINST (:text IN BOOLEAN MODE)')
+      .orWhere('MATCH(composition.name) AGAINST (:text IN BOOLEAN MODE)')
+      .orWhere('MATCH(comments.text) AGAINST (:text IN BOOLEAN MODE)')
+      .setParameter('text', text)
       .getMany();
 
     const result = reviews.map((review) => {
@@ -52,14 +61,17 @@ export class ReviewsService {
     });
   }
 
-  async findPreviews() {
+  async findPreviews(page = 1, amount = 12) {
     const reviews = await this._repo
       .createQueryBuilder('review')
-      .select(['review.id', 'review.title', 'review.date'])
+      .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])
       .leftJoin('review.composition', 'composition')
       .addSelect('composition.name')
+      .leftJoinAndSelect('composition.tag', 'tag')
       .leftJoinAndSelect('review.ratings', 'ratings')
       .leftJoinAndSelect('review.tags', 'tags')
+      .take(amount)
+      .skip((page - 1) * amount)
       .getMany();
 
     const result = reviews.map((review) => {
@@ -97,24 +109,53 @@ export class ReviewsService {
     return result;
   }
 
-  async findPopular(amount: number) {
-    const reviews = await this._repo.find({
-      order: {
-        // rating: 'DESC',
-      },
-      take: amount,
+  async findPopular(amount: number, page?: number, tagId?: number) {
+    const reviews = await this._repo
+      .createQueryBuilder('review')
+      .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])
+      .leftJoin('review.composition', 'composition')
+      .addSelect('composition.name')
+      .leftJoinAndSelect('composition.tag', 'tag')
+      .leftJoinAndSelect('review.ratings', 'ratings')
+      .leftJoin('review.tags', 'tags')
+      .where(tagId ? 'tags.id = :tagId' : '', { tagId })
+      .orWhere(tagId ? 'tag.id = :tagId' : '', { tagId })
+      .leftJoinAndSelect('review.tags', 'tags2')
+      .addSelect('AVG(ratings.score) OVER(PARTITION BY review.id)', 'avgRating')
+      .orderBy('avgRating', 'DESC')
+      .take(amount)
+      .skip(page ? (page - 1) * amount : 0)
+      .getMany();
+
+    const result = reviews.map((review) => {
+      return new Preview(review);
     });
-    return reviews;
+
+    return result;
   }
 
-  async findLatest(amount: number) {
-    const reviews = await this._repo.find({
-      order: {
-        date: 'DESC',
-      },
-      take: amount,
+  async findLatest(amount: number, page = 1, tagId?: number) {
+    const reviews = await this._repo
+      .createQueryBuilder('review')
+      .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])
+      .leftJoin('review.composition', 'composition')
+      .addSelect('composition.name')
+      .leftJoinAndSelect('composition.tag', 'tag')
+      .leftJoinAndSelect('review.ratings', 'ratings')
+      .leftJoin('review.tags', 'tags')
+      .where(tagId ? 'tags.id = :tagId' : '', { tagId })
+      .orWhere(tagId ? 'tag.id = :tagId' : '', { tagId })
+      .leftJoinAndSelect('review.tags', 'tags2')
+      .orderBy('review.date', 'DESC')
+      .take(amount)
+      .skip(page ? (page - 1) * amount : 0)
+      .getMany();
+
+    const result = reviews.map((review) => {
+      return new Preview(review);
     });
-    return reviews;
+
+    return result;
   }
 
   async update(id: number, updateReviewDto: UpdateReviewDto) {
@@ -154,6 +195,9 @@ export class ReviewsService {
       avgRating: this.getAvgRating(review.ratings),
       userRating:
         review.ratings.find((rating) => rating.user === userId)?.score ?? 0,
+      isLiked:
+        review.ratings.find((rating) => rating.user === userId)?.isLiked ??
+        false,
       group: review.composition.tag,
       tags: review.tags,
       comments: review.comments.map((comment) => ({

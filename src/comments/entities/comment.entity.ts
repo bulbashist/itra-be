@@ -1,5 +1,3 @@
-import { Review } from 'src/reviews/entities/review.entity';
-import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -9,20 +7,25 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Review } from 'src/reviews/entities/review.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Entity({ name: 'comments' })
 export class Comment {
   @PrimaryColumn({ generated: 'increment' })
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 1000 })
   @Index({ fulltext: true })
   text: string;
 
   @UpdateDateColumn()
   date: Date;
 
-  @ManyToOne(() => Review, (review) => review.comments, { nullable: false })
+  @ManyToOne(() => Review, (review) => review.comments, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'review_id' })
   review: Review;
 

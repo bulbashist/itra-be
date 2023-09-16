@@ -4,8 +4,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Review } from 'src/reviews/entities/review.entity';
-import { title } from 'process';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +32,7 @@ export class UsersService {
       .leftJoin('user.reviews', 'reviews')
       .addSelect(['reviews.id', 'reviews.title', 'reviews.date'])
       .leftJoinAndSelect('reviews.ratings', 'ratings')
+      .leftJoinAndSelect('user.reviewRatings', 'userRatings')
       .leftJoin('reviews.composition', 'composition')
       .addSelect(['composition.id', 'composition.name'])
       .getOne();
@@ -42,6 +41,11 @@ export class UsersService {
       review.avgRating =
         review.ratings.reduce((sum, rating) => sum + rating.score, 0) /
         review.ratings.length;
+
+      user.likes = user.reviewRatings.reduce(
+        (count, curr) => count + +curr.isLiked,
+        0,
+      );
       return review;
     });
 

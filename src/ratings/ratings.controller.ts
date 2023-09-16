@@ -13,6 +13,7 @@ import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
 import { Jwt } from 'src/jwt/jwt.decorator';
 import { AccessToken } from 'src/utility/types';
+import { ReviewRatingDTO } from './dto/review-rating.dto';
 
 @Controller('api/ratings')
 export class RatingsController {
@@ -21,13 +22,13 @@ export class RatingsController {
   @Patch('/reviews/:id')
   updateRR(
     @Param('id') reviewId: string,
-    @Body() { score }: { score: string },
+    @Body() body: ReviewRatingDTO,
     @Jwt() token: AccessToken,
   ) {
     const userId = token?.id;
-    console.log(token, score);
-    if (!score || !userId) throw new UnauthorizedException();
-    return this.ratingsService.update(userId, +reviewId, +score);
+    if ((!body.score && body.isLiked == undefined) || !userId)
+      throw new UnauthorizedException();
+    return this.ratingsService.update(userId, +reviewId, body);
   }
 
   @Patch('/compositions/:id')

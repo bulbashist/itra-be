@@ -3,19 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   UseGuards,
   Req,
-  Redirect,
   Res,
   BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { Response, Request } from 'express';
 import { GoogleOAuthGuard } from './google/google.guard';
 import { GithubOAuthGuard } from './github/github.guard';
@@ -28,6 +21,8 @@ export class AuthController {
   @Get('user')
   getUserData(@Req() req: Request) {
     const token = req.cookies.accessToken;
+    if (!token) return;
+
     const data = this.authService.getUserData(token);
     return data;
   }
@@ -45,9 +40,13 @@ export class AuthController {
 
     const accessToken = await this.authService.logInGoogle(email);
 
-    res
-      .cookie(COOKIE.ACCESS_TOKEN, accessToken)
-      .redirect(process.env.CLIENT_APP);
+    if (accessToken) {
+      res
+        .cookie(COOKIE.ACCESS_TOKEN, accessToken, { maxAge: 3600000 })
+        .redirect(process.env.CLIENT_APP);
+    } else {
+      res.redirect(process.env.CLIENT_APP);
+    }
   }
 
   @Get('login-github')
@@ -63,22 +62,47 @@ export class AuthController {
 
     const accessToken = await this.authService.logInGithub(email);
 
-    res
-      .cookie(COOKIE.ACCESS_TOKEN, accessToken)
-      .redirect(process.env.CLIENT_APP);
+    if (accessToken) {
+      res
+        .cookie(COOKIE.ACCESS_TOKEN, accessToken, { maxAge: 3600000 })
+        .redirect(process.env.CLIENT_APP);
+    } else {
+      res.redirect(process.env.CLIENT_APP);
+    }
   }
 
   @Post('signup')
-  async signUp(@Body() { login, password }: any) {
-    const result = await this.authService.signUp(login, password);
+  async signUp(@Body() { login, password }: any, @Res() res: Response) {
+    await this.authService.signUp(login, password);
 
-    if (!result) throw new BadRequestException('Same login');
-    return result;
+    const accessToken = await this.authService.logIn(login, password);
+    if (accessToken) {
+      res
+        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
+          maxAge: 3600000,
+        })
+        .end();
+    } else {
+      res.end();
+    }
+  }
+
+  @Get('signout')
+  signOut(@Res() res: Response) {
+    res.clearCookie(COOKIE.ACCESS_TOKEN).end();
   }
 
   @Post('login')
-  async logIn(@Body() { login, password }: any) {
-    const result = await this.authService.logIn(login, password);
-    return result;
+  async logIn(@Body() { login, password }: any, @Res() res: Response) {
+    const accessToken = await this.authService.logIn(login, password);
+    if (accessToken) {
+      res
+        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
+          maxAge: 3600000,
+        })
+        .end();
+    } else {
+      res.end();
+    }
   }
 }

@@ -11,9 +11,12 @@ export class ReviewRating {
 
   @PrimaryColumn({ name: 'review_id', type: 'int' })
   @JoinColumn({ name: 'review_id' })
-  @ManyToOne(() => Review, (review) => review.ratings)
+  @ManyToOne(() => Review, (review) => review.ratings, { onDelete: 'CASCADE' })
   review: Review;
 
-  @Column()
+  @Column({ nullable: true })
   score: number;
+
+  @Column({ type: 'tinyint', default: 0 })
+  isLiked: boolean;
 }
