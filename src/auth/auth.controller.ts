@@ -42,7 +42,12 @@ export class AuthController {
 
     if (accessToken) {
       res
-        .cookie(COOKIE.ACCESS_TOKEN, accessToken, { maxAge: 3600000 })
+        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
+          maxAge: 3600000,
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true,
+        })
         .redirect(process.env.CLIENT_APP);
     } else {
       res.redirect(process.env.CLIENT_APP);
@@ -64,7 +69,12 @@ export class AuthController {
 
     if (accessToken) {
       res
-        .cookie(COOKIE.ACCESS_TOKEN, accessToken, { maxAge: 3600000 })
+        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
+          maxAge: 3600000,
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true,
+        })
         .redirect(process.env.CLIENT_APP);
     } else {
       res.redirect(process.env.CLIENT_APP);
@@ -80,6 +90,9 @@ export class AuthController {
       res
         .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
           maxAge: 3600000,
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true,
         })
         .end();
     } else {
@@ -99,10 +112,13 @@ export class AuthController {
       res
         .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
           maxAge: 3600000,
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true,
         })
         .end();
     } else {
-      res.end();
+      res.status(403).end();
     }
   }
 }

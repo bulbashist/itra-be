@@ -24,8 +24,7 @@ export class Preview {
   private getAvgRating(ratings: ReviewRating[]) {
     if (ratings.length === 0) return 0;
 
-    return (
-      ratings.reduce((sum, rating) => sum + rating.score, 0) / ratings.length
-    );
+    const temp = ratings.filter((rating) => rating.score !== null);
+    return temp.reduce((sum, rating) => sum + rating.score, 0) / temp.length;
   }
 }

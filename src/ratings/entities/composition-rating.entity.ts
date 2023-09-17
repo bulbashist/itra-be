@@ -6,7 +6,9 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 export class CompositionRating {
   @PrimaryColumn({ name: 'user_id', type: 'int' })
   @JoinColumn({ name: 'user_id' })
-  @ManyToOne(() => User, (user) => user.compositionRatings)
+  @ManyToOne(() => User, (user) => user.compositionRatings, {
+    onDelete: 'RESTRICT',
+  })
   user: User;
 
   @PrimaryColumn({ type: 'int', name: 'composition_id' })

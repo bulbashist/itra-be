@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Storage } from '@google-cloud/storage';
 import * as cookieParser from 'cookie-parser';
 declare const module: any;
 

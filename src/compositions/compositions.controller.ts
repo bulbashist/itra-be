@@ -31,7 +31,10 @@ export class CompositionsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Jwt() token: AccessToken) {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Jwt() token: AccessToken,
+  ) {
     const composition = await this.compositionsService.findOne(+id, token?.id);
     return composition;
   }

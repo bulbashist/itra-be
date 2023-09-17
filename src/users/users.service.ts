@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
@@ -71,9 +71,12 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    // CHECK CASCADES
     const user = await this.findOneByID(id);
-    const result = await this._repo.remove(user);
-    return result;
+    try {
+      const result = await this._repo.remove(user);
+      return result;
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 }

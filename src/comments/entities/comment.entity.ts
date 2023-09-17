@@ -29,7 +29,10 @@ export class Comment {
   @JoinColumn({ name: 'review_id' })
   review: Review;
 
-  @ManyToOne(() => User, (user) => user.comments, { nullable: false })
+  @ManyToOne(() => User, (user) => user.comments, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 }

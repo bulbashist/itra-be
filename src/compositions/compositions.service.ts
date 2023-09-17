@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Composition } from './entities/composition.entity';
 import { Repository } from 'typeorm';
 import { GetCompositionDto } from './dto/get-composition.dto';
+import { CompositionPreviewDto } from './dto/preview.dto';
 
 @Injectable()
 export class CompositionsService {
@@ -20,11 +21,14 @@ export class CompositionsService {
   async findAll(page: number, amount = 12) {
     const compositions = await this._repo
       .createQueryBuilder('comp')
+      .leftJoinAndSelect('comp.ratings', 'ratings')
       .leftJoinAndSelect('comp.tag', 'tag')
       .take(amount)
       .skip((page - 1) * amount)
       .getMany();
-    return compositions;
+
+    const result = compositions.map((comp) => new CompositionPreviewDto(comp));
+    return result;
   }
 
   async findOne(id: number, userId = 0) {
@@ -35,8 +39,8 @@ export class CompositionsService {
     return new GetCompositionDto(composition, userId);
   }
 
-  update(id: number, updateCompositionDto: UpdateCompositionDto) {
-    return `This action updates a #${id} composition`;
+  async update(id: number, dto: UpdateCompositionDto) {
+    await this._repo.save({ id, ...dto });
   }
 
   remove(id: number) {

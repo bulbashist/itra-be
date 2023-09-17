@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { GetReviewDto } from './dto/get-review.dto';
-import { ReviewRating } from 'src/ratings/entities/review-rating.entity';
 import { Preview } from './dto/preview.dto';
 
 @Injectable()
@@ -14,14 +13,6 @@ export class ReviewsService {
     @InjectRepository(Review)
     private _repo: Repository<Review>,
   ) {}
-
-  public previewQuery = this._repo
-    .createQueryBuilder('review')
-    .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])
-    .leftJoin('review.composition', 'composition')
-    .addSelect('composition.name')
-    .leftJoinAndSelect('review.ratings', 'ratings')
-    .leftJoinAndSelect('review.tags', 'tags');
 
   async create(createReviewDto: CreateReviewDto, userId: number) {
     const review = {
@@ -35,10 +26,11 @@ export class ReviewsService {
   async findByText(text = '') {
     const reviews = await this._repo
       .createQueryBuilder('review')
-      .select(['review.id', 'review.title', 'review.date'])
+      .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])
       .leftJoin('review.composition', 'composition')
       .addSelect('composition.name')
       .leftJoin('review.comments', 'comments')
+      .leftJoinAndSelect('composition.tag', 'tag')
       .leftJoinAndSelect('review.ratings', 'ratings')
       .leftJoinAndSelect('review.tags', 'tags')
       .where('MATCH(review.text) AGAINST (:text IN BOOLEAN MODE)')
@@ -81,15 +73,6 @@ export class ReviewsService {
     return result;
   }
 
-  /*
-  id
-  title
-  avgRating
-  composition
-  tags
-  date
-  */
-
   async findOne(id: number, userId = 0) {
     const review = await this._repo
       .createQueryBuilder('review')
@@ -105,7 +88,7 @@ export class ReviewsService {
       .addSelect(['author.id', 'author.name'])
       .getOne();
 
-    const result = this.getTransform(review, userId);
+    const result = new GetReviewDto(review, userId);
     return result;
   }
 
@@ -179,42 +162,5 @@ export class ReviewsService {
     const review = await this._repo.findOne({ where: { id } });
     const result = await this._repo.remove(review);
     return result;
-  }
-
-  private getTransform(review: Review, userId): GetReviewDto {
-    return {
-      id: review.id,
-      compositionName: review.composition.name,
-      text: review.text,
-      title: review.title,
-      author: {
-        id: review.user.id,
-        name: review.user.name,
-      },
-      date: review.date.toISOString(),
-      avgRating: this.getAvgRating(review.ratings),
-      userRating:
-        review.ratings.find((rating) => rating.user === userId)?.score ?? 0,
-      isLiked:
-        review.ratings.find((rating) => rating.user === userId)?.isLiked ??
-        false,
-      group: review.composition.tag,
-      tags: review.tags,
-      comments: review.comments.map((comment) => ({
-        id: comment.id,
-        author: {
-          id: comment.user.id,
-          name: comment.user.name,
-        },
-        date: comment.date,
-        text: comment.text,
-      })),
-    };
-  }
-
-  private getAvgRating(ratings: ReviewRating[]) {
-    return (
-      ratings.reduce((sum, rating) => sum + rating.score, 0) / ratings.length
-    );
   }
 }

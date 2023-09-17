@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -37,8 +38,8 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const result = await this.usersService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.usersService.remove(id);
     return result;
   }
 }

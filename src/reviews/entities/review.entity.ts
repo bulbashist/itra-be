@@ -43,7 +43,7 @@ export class Review {
   @OneToMany(() => ReviewRating, (rating) => rating.review)
   ratings: ReviewRating[];
 
-  @ManyToOne(() => User, (user) => user.reviews)
+  @ManyToOne(() => User, (user) => user.reviews, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

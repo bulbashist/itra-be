@@ -29,8 +29,7 @@ export class ReviewsController {
   }
 
   @Get('search')
-  async findByText(@Query() query: any) {
-    const { text } = query;
+  async findByText(@Query('text') text: string) {
     return await this.reviewsService.findByText(text);
   }
 
@@ -79,7 +78,7 @@ export class ReviewsController {
 
   @Delete(':id')
   @UseGuards(DeleteGuard)
-  async remove(@Param('id') id: string) {
-    return await this.reviewsService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.reviewsService.remove(id);
   }
 }
