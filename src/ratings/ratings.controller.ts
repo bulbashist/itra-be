@@ -7,13 +7,13 @@ import {
   Param,
   Delete,
   UnauthorizedException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RatingsService } from './ratings.service';
-import { CreateRatingDto } from './dto/create-rating.dto';
-import { UpdateRatingDto } from './dto/update-rating.dto';
 import { Jwt } from 'src/jwt/jwt.decorator';
 import { AccessToken } from 'src/utility/types';
 import { ReviewRatingDTO } from './dto/review-rating.dto';
+import { CompositionRatingDTO } from './dto/composition-rating.dto';
 
 @Controller('api/ratings')
 export class RatingsController {
@@ -28,11 +28,17 @@ export class RatingsController {
     const userId = token?.id;
     if ((!body.score && body.isLiked == undefined) || !userId)
       throw new UnauthorizedException();
-    return this.ratingsService.update(userId, +reviewId, body);
+    return this.ratingsService.updateRR(userId, +reviewId, body);
   }
 
   @Patch('/compositions/:id')
-  updateCR(@Param('id') id: string, @Body() updateRatingDto: UpdateRatingDto) {
-    // return this.ratingsService.update(+id, updateRatingDto);
+  updateCR(
+    @Param('id', ParseIntPipe) compositionId: number,
+    @Body() body: CompositionRatingDTO,
+    @Jwt() token: AccessToken,
+  ) {
+    const userId = token?.id;
+    if (!body.score || !userId) throw new UnauthorizedException();
+    return this.ratingsService.updateCR(userId, compositionId, body);
   }
 }

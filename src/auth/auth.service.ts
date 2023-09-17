@@ -6,6 +6,8 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import * as COOKIE from 'src/constants/cookies';
 
 @Injectable()
 export class AuthService {
@@ -74,5 +76,25 @@ export class AuthService {
       },
     );
     return accessToken;
+  }
+
+  setToken(res: Response, accessToken: string) {
+    if (!accessToken) return res.status(403);
+
+    res.cookie(COOKIE.ACCESS_TOKEN, accessToken, {
+      maxAge: 3600000,
+      sameSite: 'none',
+      httpOnly: true,
+      secure: true,
+    });
+    return res;
+  }
+
+  authorize(res: Response, accessToken: string) {
+    this.setToken(res, accessToken).end();
+  }
+
+  authroizeAndRedirect(res: Response, accessToken: string) {
+    this.setToken(res, accessToken).redirect(process.env.CLIENT_APP);
   }
 }

@@ -30,7 +30,7 @@ export class GetCompositionDto {
     );
   }
 
-  private getUserRating(ratings: CompositionRating[], userId: number) {
-    return ratings.find((rating) => rating.user.id === userId)?.score ?? 0;
+  private getUserRating(ratings: CompositionRating[], userId) {
+    return ratings.find((rating) => rating.user === userId)?.score ?? 0;
   }
 }

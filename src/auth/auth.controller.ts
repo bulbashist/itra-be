@@ -6,7 +6,6 @@ import {
   UseGuards,
   Req,
   Res,
-  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
@@ -39,19 +38,7 @@ export class AuthController {
     const { email } = req.user as any;
 
     const accessToken = await this.authService.logInGoogle(email);
-
-    if (accessToken) {
-      res
-        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
-          maxAge: 3600000,
-          sameSite: 'none',
-          httpOnly: true,
-          secure: true,
-        })
-        .redirect(process.env.CLIENT_APP);
-    } else {
-      res.redirect(process.env.CLIENT_APP);
-    }
+    this.authService.authroizeAndRedirect(res, accessToken);
   }
 
   @Get('login-github')
@@ -66,19 +53,7 @@ export class AuthController {
     const { email } = req.user as any;
 
     const accessToken = await this.authService.logInGithub(email);
-
-    if (accessToken) {
-      res
-        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
-          maxAge: 3600000,
-          sameSite: 'none',
-          httpOnly: true,
-          secure: true,
-        })
-        .redirect(process.env.CLIENT_APP);
-    } else {
-      res.redirect(process.env.CLIENT_APP);
-    }
+    this.authService.authroizeAndRedirect(res, accessToken);
   }
 
   @Post('signup')
@@ -86,18 +61,7 @@ export class AuthController {
     await this.authService.signUp(login, password);
 
     const accessToken = await this.authService.logIn(login, password);
-    if (accessToken) {
-      res
-        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
-          maxAge: 3600000,
-          sameSite: 'none',
-          httpOnly: true,
-          secure: true,
-        })
-        .end();
-    } else {
-      res.end();
-    }
+    this.authService.authorize(res, accessToken);
   }
 
   @Get('signout')
@@ -108,17 +72,6 @@ export class AuthController {
   @Post('login')
   async logIn(@Body() { login, password }: any, @Res() res: Response) {
     const accessToken = await this.authService.logIn(login, password);
-    if (accessToken) {
-      res
-        .cookie(COOKIE.ACCESS_TOKEN, accessToken, {
-          maxAge: 3600000,
-          sameSite: 'none',
-          httpOnly: true,
-          secure: true,
-        })
-        .end();
-    } else {
-      res.status(403).end();
-    }
+    this.authService.authorize(res, accessToken);
   }
 }

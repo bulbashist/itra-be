@@ -35,16 +35,9 @@ export class CompositionsController {
     @Param('id', ParseIntPipe) id: number,
     @Jwt() token: AccessToken,
   ) {
-    const composition = await this.compositionsService.findOne(+id, token?.id);
+    console.log(token.id);
+    const composition = await this.compositionsService.findOne(id, token?.id);
     return composition;
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCompositionDto: UpdateCompositionDto,
-  ) {
-    return this.compositionsService.update(+id, updateCompositionDto);
   }
 
   @Delete(':id')
