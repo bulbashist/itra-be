@@ -5,7 +5,10 @@ import { ReviewRating } from 'src/ratings/entities/review-rating.entity';
 
 export class GetReviewDto {
   id: number;
-  compositionName: string;
+  composition: {
+    name: string;
+    tag: Tag;
+  };
   text: string;
   userRating: number;
   avgRating: number;
@@ -22,7 +25,10 @@ export class GetReviewDto {
 
   constructor(review: Review, userId) {
     this.id = review.id;
-    this.compositionName = review.composition.name;
+    this.composition = {
+      name: review.composition.name,
+      tag: review.composition.tag,
+    };
     this.text = review.text;
     this.title = review.title;
     this.author = {

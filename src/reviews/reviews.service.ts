@@ -79,6 +79,7 @@ export class ReviewsService {
       .where('review.id = :id', { id })
       .leftJoin('review.composition', 'composition')
       .addSelect('composition.name')
+      .leftJoinAndSelect('composition.tag', 'ctag')
       .leftJoinAndSelect('review.ratings', 'ratings')
       .leftJoinAndSelect('review.comments', 'comments')
       .leftJoinAndSelect('review.tags', 'tags')

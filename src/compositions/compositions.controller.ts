@@ -35,7 +35,6 @@ export class CompositionsController {
     @Param('id', ParseIntPipe) id: number,
     @Jwt() token: AccessToken,
   ) {
-    console.log(token.id);
     const composition = await this.compositionsService.findOne(id, token?.id);
     return composition;
   }
