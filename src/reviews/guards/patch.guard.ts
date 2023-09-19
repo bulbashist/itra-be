@@ -24,7 +24,7 @@ export class PatchGuard implements CanActivate {
     const token = req.cookies.accessToken;
 
     const userId = await this._repo
-      .createQueryBuilder()
+      .createQueryBuilder('review')
       .where('review.id = :id', { id: reviewId })
       .select('user_id', 'id')
       .getRawOne()
