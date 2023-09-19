@@ -18,15 +18,6 @@ import { CompositionRating } from './ratings/entities/composition-rating.entity'
 import { ReviewRating } from './ratings/entities/review-rating.entity';
 import { RatingsModule } from './ratings/ratings.module';
 
-/*
-LOCAL: 
-host: localhost,
-port: 3306,
-username: 'root',
-password: 'root',
-database: 'mydb',
-*/
-
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -38,6 +29,7 @@ database: 'mydb',
       username: process.env.DBUSER,
       password: process.env.DBPASS,
       database: process.env.DBNAME,
+      poolSize: 10,
       entities: [
         User,
         Review,

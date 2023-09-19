@@ -6,7 +6,7 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import * as COOKIE from 'src/constants/cookies';
 
 @Injectable()
@@ -15,6 +15,13 @@ export class AuthService {
     private _usersService: UsersService,
     private _jwtService: JwtService,
   ) {}
+
+  private defaultCookieOpts: CookieOptions = {
+    maxAge: 3600000,
+    sameSite: 'none',
+    httpOnly: true,
+    secure: true,
+  };
 
   getUserData(token: string) {
     const { id, name, isAdmin } = this._jwtService.decode(token) as any;
@@ -57,7 +64,7 @@ export class AuthService {
     try {
       await this._usersService.create({ login, password });
     } catch {
-      throw new BadRequestException();
+      throw new BadRequestException('User already exists');
     }
   }
 
@@ -81,12 +88,7 @@ export class AuthService {
   setToken(res: Response, accessToken: string) {
     if (!accessToken) return res.status(403);
 
-    res.cookie(COOKIE.ACCESS_TOKEN, accessToken, {
-      maxAge: 3600000,
-      sameSite: 'none',
-      httpOnly: true,
-      secure: true,
-    });
+    res.cookie(COOKIE.ACCESS_TOKEN, accessToken, this.defaultCookieOpts);
     return res;
   }
 
@@ -96,5 +98,9 @@ export class AuthService {
 
   authroizeAndRedirect(res: Response, accessToken: string) {
     this.setToken(res, accessToken).redirect(process.env.CLIENT_APP);
+  }
+
+  unauthorize(res: Response) {
+    res.cookie(COOKIE.ACCESS_TOKEN, '', this.defaultCookieOpts).end();
   }
 }

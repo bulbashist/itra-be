@@ -66,7 +66,7 @@ export class AuthController {
 
   @Get('signout')
   signOut(@Res() res: Response) {
-    res.clearCookie(COOKIE.ACCESS_TOKEN).end();
+    this.authService.unauthorize(res);
   }
 
   @Post('login')
