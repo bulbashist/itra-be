@@ -11,7 +11,6 @@ import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { GoogleOAuthGuard } from './google/google.guard';
 import { GithubOAuthGuard } from './github/github.guard';
-import * as COOKIE from 'src/constants/cookies';
 
 @Controller('auth')
 export class AuthController {

@@ -6,7 +6,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 export class ReviewRating {
   @PrimaryColumn({ name: 'user_id', type: 'int' })
   @JoinColumn({ name: 'user_id' })
-  @ManyToOne(() => User, (user) => user.reviewRatings, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => User, (user) => user.reviewRatings, { onDelete: 'CASCADE' })
   user: User;
 
   @PrimaryColumn({ name: 'review_id', type: 'int' })

@@ -19,9 +19,11 @@ export class DeleteGuard implements CanActivate {
     const cookie = req.handshake.headers.cookie;
     const { id } = context.switchToWs().getData();
     const { accessToken } = this.parseCookieHeader(cookie) as {
-      accessToken: AccessToken;
+      accessToken: string;
     };
-    const { id: userId, isAdmin } = accessToken;
+
+    const decodedToken = this._jwtService.decode(accessToken) as AccessToken;
+    const { id: userId, isAdmin } = decodedToken;
 
     const comment = await this._repo.findOne({
       where: { id },
