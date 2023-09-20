@@ -26,12 +26,12 @@ export class CompositionsService {
     return result;
   }
 
-  // TODO
   async findOne(id: number, userId = 0) {
     const composition = await this._repo.findOne({
       where: { id },
       relations: ['tag', 'ratings', 'reviews'],
     });
+
     return new GetCompositionDto(composition, userId);
   }
 

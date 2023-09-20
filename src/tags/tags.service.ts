@@ -9,7 +9,9 @@ export class TagsService {
     @InjectRepository(Tag)
     private _repo: Repository<Tag>,
   ) {
-    setInterval(() => _repo.query('SELECT 1'), 1000 * 60 * 60 * 7);
+    setInterval(() => {
+      _repo.query('SELECT 1').then(console.log).catch(console.log);
+    }, 1000 * 60 * 60 * 1);
   }
 
   async create(name: string) {

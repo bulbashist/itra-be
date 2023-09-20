@@ -1,17 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { CompositionsService } from './compositions.service';
-import { CreateCompositionDto } from './dto/create-composition.dto';
-import { UpdateCompositionDto } from './dto/update-composition.dto';
 import { Jwt } from 'src/jwt/jwt.decorator';
 import { AccessToken } from 'src/utility/types';
 
