@@ -11,7 +11,7 @@ b5d0a008cf519a1 IMGUR-CLIENT-ID
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://application-ld69.onrender.com'],
+    origin: [process.env.CLIENT_APP],
     credentials: true,
   });
 

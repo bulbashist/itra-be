@@ -30,6 +30,7 @@ import { RatingsModule } from './ratings/ratings.module';
       password: process.env.DBPASS,
       database: process.env.DBNAME,
       poolSize: 10,
+      keepConnectionAlive: true,
       entities: [
         User,
         Review,

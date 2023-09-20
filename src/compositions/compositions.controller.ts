@@ -19,15 +19,15 @@ import { AccessToken } from 'src/utility/types';
 export class CompositionsController {
   constructor(private readonly compositionsService: CompositionsService) {}
 
-  @Post()
-  create(@Body() createCompositionDto: CreateCompositionDto) {
-    return this.compositionsService.create(createCompositionDto);
-  }
-
   @Get()
   async findAll(@Query('page', ParseIntPipe) page: number) {
     const compositions = await this.compositionsService.findAll(page);
     return compositions;
+  }
+
+  @Get('hints')
+  async getHints() {
+    return await this.compositionsService.getHints();
   }
 
   @Get(':id')
@@ -37,10 +37,5 @@ export class CompositionsController {
   ) {
     const composition = await this.compositionsService.findOne(id, token?.id);
     return composition;
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.compositionsService.remove(+id);
   }
 }
