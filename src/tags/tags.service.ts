@@ -8,7 +8,9 @@ export class TagsService {
   constructor(
     @InjectRepository(Tag)
     private _repo: Repository<Tag>,
-  ) {}
+  ) {
+    setInterval(() => _repo.query('SELECT 1'), 1000 * 60 * 60 * 7);
+  }
 
   async create(name: string) {
     const result = await this._repo.insert({ name });
