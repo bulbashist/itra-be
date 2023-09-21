@@ -10,8 +10,11 @@ export class TagsService {
     private _repo: Repository<Tag>,
   ) {
     setInterval(() => {
-      _repo.query('SELECT 1').then(console.log).catch(console.log);
-    }, 1000 * 60 * 60 * 1);
+      _repo
+        .query('SELECT 1')
+        .then(console.log)
+        .catch(() => console.log('disconnected'));
+    }, 1000 * 60 * 60 * 0.5);
   }
 
   async create(name: string) {
