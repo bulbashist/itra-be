@@ -14,7 +14,7 @@ export class TagsService {
         .query('SELECT 1')
         .then(console.log)
         .catch(() => console.log('disconnected'));
-    }, 1000 * 60 * 10);
+    }, 1000 * 60 * 1);
   }
 
   async create(name: string) {
