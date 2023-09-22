@@ -48,12 +48,10 @@ export class ReviewsService {
   }
 
   findAll() {
-    return this._repo.find({
-      take: 12,
-    });
+    return this._repo.find();
   }
 
-  async findPreviews(page = 1, amount = 12) {
+  async findPreviews(page = 1, amount: number) {
     const reviews = await this._repo
       .createQueryBuilder('review')
       .select(['review.id', 'review.title', 'review.date', 'review.previewImg'])

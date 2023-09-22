@@ -23,6 +23,8 @@ import { PostGuard } from './guards/post.guard';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
+  private amount = 10;
+
   @Get()
   findAll() {
     return this.reviewsService.findAll();
@@ -36,18 +38,18 @@ export class ReviewsController {
   @Get('popular')
   async findPopular(@Query() query: any) {
     const { page, tag } = query;
-    return await this.reviewsService.findPopular(10, +page, +tag);
+    return await this.reviewsService.findPopular(this.amount, +page, +tag);
   }
 
   @Get('new')
   async findLatest(@Query() query: any) {
     const { page, tag } = query;
-    return await this.reviewsService.findLatest(10, +page, +tag);
+    return await this.reviewsService.findLatest(this.amount, +page, +tag);
   }
 
   @Get('previews')
   async findPreviews(@Query('page', ParseIntPipe) page: number) {
-    return await this.reviewsService.findPreviews(page);
+    return await this.reviewsService.findPreviews(page, this.amount);
   }
 
   @Get(':id')
