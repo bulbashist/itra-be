@@ -60,9 +60,9 @@ export class AuthService {
     return accessToken;
   }
 
-  async signUp(login: string, password: string) {
+  async signUp(login: string, password: string, name?: string) {
     try {
-      await this._usersService.create({ login, password });
+      await this._usersService.create({ login, password, name });
     } catch {
       throw new BadRequestException('User already exists');
     }

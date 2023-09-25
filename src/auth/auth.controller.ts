@@ -56,8 +56,8 @@ export class AuthController {
   }
 
   @Post('signup')
-  async signUp(@Body() { login, password }: any, @Res() res: Response) {
-    await this.authService.signUp(login, password);
+  async signUp(@Body() { login, password, name }: any, @Res() res: Response) {
+    await this.authService.signUp(login, password, name);
 
     const accessToken = await this.authService.logIn(login, password);
     this.authService.authorize(res, accessToken);
